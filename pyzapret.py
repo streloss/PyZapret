@@ -846,12 +846,17 @@ class PyZapretGUI:
             ttk.Button(r, text="…", width=3,
                        command=lambda v=var: browse_dir(v)).pack(side="left")
 
+        # Автоопределение путей относительно расположения скрипта
+        _base = os.path.dirname(os.path.abspath(sys.argv[0]))
+        _def_bin   = os.path.join(_base, "bin")
+        _def_lists = os.path.join(_base, "lists")
+
         r1 = ttk.Frame(f); r1.pack(fill="x", pady=2)
-        self.var_bin  = tk.StringVar(value=r"C:\zapret\bin")
+        self.var_bin  = tk.StringVar(value=_def_bin)
         row("Папка bin/:", self.var_bin, r1)
 
         r2 = ttk.Frame(f); r2.pack(fill="x", pady=2)
-        self.var_lists = tk.StringVar(value=r"C:\zapret\lists")
+        self.var_lists = tk.StringVar(value=_def_lists)
         row("Папка lists/:", self.var_lists, r2)
 
         # Game filter
