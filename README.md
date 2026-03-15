@@ -1,192 +1,184 @@
-# ⚡ PyZapret — DPI Bypass Tool (Windows)
+<div align="center">
 
-Графический интерфейс для обхода DPI-блокировок на Windows.  
-Поддерживает два движка: **winws.exe** (zapret) и встроенный **pydivert**.
+<img src="https://img.shields.io/badge/Windows-10%2F11-0078D4?style=flat-square&logo=windows&logoColor=white"/>
+<img src="https://img.shields.io/badge/Python-3.10%2B-3776AB?style=flat-square&logo=python&logoColor=white"/>
+<img src="https://img.shields.io/badge/License-MIT-green?style=flat-square"/>
+<img src="https://img.shields.io/badge/Release-v2.0-blue?style=flat-square"/>
+<img src="https://img.shields.io/badge/Requires-Administrator-red?style=flat-square"/>
+
+# ⚡ PyZapret GUI
+
+**Графический инструмент для обхода DPI-блокировок на Windows**
+
+Поддерживает два движка: встроенный Python (`pydivert`) и внешний `winws.exe` от проекта [zapret](https://github.com/bol-van/zapret).
+
+</div>
 
 ---
 
-## 📁 Структура папки
+## Возможности
+
+- **Два движка** — `winws.exe` (zapret, рекомендуется) и `pydivert` (встроенный Python-движок)
+- **Три стратегии WinWS** — MultiSplit, HostFakeSplit, Original
+- **Умная детекция протоколов** — автоматическое определение TLS ClientHello и HTTP-запросов с извлечением SNI и Host
+- **Живой лог** с фильтрами по уровню (INFO / WARNING / ERROR / TLS / winws)
+- **Статистика пакетов** — счётчики TLS, HTTP и общий uptime
+- **Готовые пресеты** для PyDivert (YouTube, Discord, HTTP, Max Bypass)
+- **Тонкая настройка** — группы правил, GameFilter TCP/UDP, кастомные WF-порты
+- **Тёмный UI** в стиле Windows 11, без внешних зависимостей для интерфейса
+
+---
+
+## Стратегии WinWS
+
+| Стратегия | Метод | Подходит для |
+|-----------|-------|-------------|
+| **MultiSplit** ✅ | `fake,multisplit` + seqovl + паттерн | Ростелеком, МТС, Мегафон |
+| **HostFakeSplit** | `hostfakesplit` + подмена Host | Билайн, МГТС, Tele2 |
+| **Original** | простой `fake` | Слабый DPI / тест-режим |
+
+---
+
+## Требования
+
+| Компонент | Версия / Примечание |
+|-----------|---------------------|
+| Windows | 10 или 11 |
+| Python | 3.10+ |
+| Права | Администратор (обязательно) |
+| `pydivert` | только для PyDivert-движка — `pip install pydivert` |
+| `winws.exe` + `WinDivert` | только для WinWS-движка (из zapret) |
+
+---
+
+## Быстрый старт
+
+### 1. Клонировать репозиторий
+
+```bash
+git clone https://github.com/your-username/pyzapret-gui.git
+cd pyzapret-gui
+```
+
+### 2. Установить зависимости
+
+```bash
+# Обязательно — если планируете использовать движок PyDivert
+pip install pydivert
+
+# Для движка WinWS зависимостей Python нет
+```
+
+### 3. Запустить (от Администратора)
+
+```bash
+# Через Python
+python pyzapret_gui.py
+
+# Или запустить скомпилированный .exe от имени Администратора
+```
+
+### 4. Структура папок для WinWS
 
 ```
-твоя_папка/
+pyzapret-gui/
+├── pyzapret_gui.py
+├── service.bat           ← из zapret (для автозагрузки GameFilter)
 ├── bin/
 │   ├── winws.exe
+│   ├── WinDivert.dll
+│   ├── WinDivert64.sys
 │   ├── quic_initial_www_google_com.bin
 │   ├── tls_clienthello_www_google_com.bin
-│   ├── tls_clienthello_4pda_to.bin
 │   ├── tls_clienthello_max_ru.bin
-│   ├── stun.bin
-│   └── ...
-├── lists/
-│   ├── list-general.txt
-│   ├── list-general-user.txt
-│   ├── list-google.txt
-│   ├── list-exclude.txt
-│   ├── list-exclude-user.txt
-│   ├── ipset-all.txt
-│   ├── ipset-exclude.txt
-│   └── ...
-├── pyzapret.py        ← главный файл
-├── service.bat        ← (опционально) загрузка GameFilter
-└── README.md
+│   ├── tls_clienthello_4pda_to.bin
+│   └── stun.bin
+└── lists/
+    ├── list-general.txt
+    ├── list-general-user.txt
+    ├── list-google.txt
+    ├── list-exclude.txt
+    ├── list-exclude-user.txt
+    ├── ipset-all.txt
+    ├── ipset-exclude.txt
+    └── ipset-exclude-user.txt
 ```
 
-> Папки `bin/` и `lists/` определяются автоматически относительно `pyzapret.py` — ничего настраивать не нужно.
+> Файлы `bin/` и `lists/` берутся из оригинального проекта [zapret](https://github.com/bol-van/zapret).
 
 ---
 
-## 🔧 Требования
+## Сборка в .exe
 
-| Компонент | Версия | Обязательно |
-|-----------|--------|-------------|
-| Windows | 10 / 11 | ✅ |
-| Python | 3.10+ | ✅ |
-| Права Администратора | — | ✅ |
-| winws.exe (zapret) | последняя | для движка WinWS |
-| pydivert | `pip install pydivert` | для движка PyDivert |
-| ttkbootstrap | `pip install ttkbootstrap` | нет (но улучшает вид) |
-
----
-
-## 🚀 Установка и запуск
-
-### 1. Установить зависимости Python
+### PyInstaller (рекомендуется)
 
 ```bash
-pip install pydivert ttkbootstrap
+pip install pyinstaller
+pyinstaller --onedir --windowed --hidden-import=pydivert --name=PyZapret pyzapret_gui.py
 ```
 
-### 2. Положить файлы на место
+Готовая папка появится в `dist/PyZapret/`. Скопируйте туда `bin/`, `lists/`, `service.bat`.
 
-Скопируйте `winws.exe` и `.bin`-файлы в папку `bin/`,  
-списки хостов и ipset — в папку `lists/`.
-
-### 3. Запустить от имени Администратора
+### Nuitka (меньше антивирусных срабатываний)
 
 ```bash
-# Правой кнопкой → "Запуск от имени администратора"
-python pyzapret.py
+pip install nuitka
+python -m nuitka --onefile --windows-disable-console --include-package=pydivert --output-filename=PyZapret.exe pyzapret_gui.py
 ```
 
-Или через PowerShell (Admin):
-```powershell
-python pyzapret.py
+---
+
+## Как выбрать стратегию
+
+```
+Провайдер неизвестен?
+│
+├─► Попробуйте MultiSplit (рекомендуется по умолчанию)
+│       Не помогло?
+│       └─► Переключитесь на HostFakeSplit
+│               Не помогло?
+│               └─► Попробуйте Original (тест-режим)
+│
+└─► Если известен провайдер:
+        Ростелеком / МТС / Мегафон  →  MultiSplit
+        Билайн / МГТС / Tele2       →  HostFakeSplit
 ```
 
-> ⚠️ Без прав администратора WinDivert / winws.exe не запустятся.
+---
+
+## Движок PyDivert — стратегии
+
+| Стратегия | Описание |
+|-----------|----------|
+| `split` | Разрезает пакет на 2 TCP-сегмента |
+| `disorder` | Разрезает + отправляет в обратном порядке |
+| `fake` | Фейковый пакет (TTL=1) перед настоящим |
+| `fakedsplit` | Фейк + разрез — максимальный обход |
 
 ---
 
-## 🖥️ Интерфейс
+## Часто задаваемые вопросы
 
-### Выбор движка
+**Почему нужны права Администратора?**
+WinDivert (используется обоими движками) работает на уровне ядра Windows и требует привилегированного доступа для перехвата сетевых пакетов.
 
-| Движок | Описание |
-|--------|----------|
-| **winws.exe** | Запускает оригинальный zapret. Рекомендуется — более мощный, поддерживает UDP/QUIC, ipset, hostlist |
-| **pydivert** | Встроенный Python-движок. Работает без `winws.exe`, только TCP |
+**Где взять winws.exe и bin-файлы?**
+Из оригинального проекта [zapret](https://github.com/bol-van/zapret) — раздел Releases.
 
----
+**Антивирус ругается на WinDivert / winws.exe?**
+Это нормально. WinDivert — легитимный драйвер для работы с сетью на уровне ядра, он используется во многих VPN и прокси-инструментах. Добавьте папку `bin/` в исключения.
 
-### Вкладка WinWS (zapret)
-
-| Поле | Описание |
-|------|----------|
-| Папка bin/ | Путь к `winws.exe` и `.bin`-файлам. Определяется автоматически |
-| Папка lists/ | Путь к спискам хостов и ipset. Определяется автоматически |
-| GameFilter TCP/UDP | Дополнительные игровые порты. Если пусто — загружается из `service.bat` автоматически |
-| WF TCP/UDP extra | Дополнительные порты WinDivert фильтра |
-| Группы правил | Включение/отключение отдельных групп обхода |
-
-#### Группы правил
-
-| Группа | Что обходит |
-|--------|-------------|
-| YouTube / Discord | QUIC UDP 443, Discord TCP/UDP (порты 2053, 2083, 2087, 2096, 8443) |
-| Google | TCP 443 по `list-google.txt` с `--ip-id=zero` |
-| General HTTP/S | TCP 80/443 по `list-general.txt` и `list-general-user.txt` |
-| QUIC ipset | UDP 443 по `ipset-all.txt` |
-| ipset TCP | TCP 80/443/8443 по `ipset-all.txt` |
-| Game TCP | Порты из GameFilterTCP по ipset |
-| Game UDP | Порты из GameFilterUDP по ipset |
+**Работает ли на Windows 7/8?**
+Нет. Требуется Windows 10 или 11.
 
 ---
 
-### Вкладка PyDivert
+## Лицензия
 
-| Параметр | Описание |
-|----------|----------|
-| Стратегия | Метод обхода (см. ниже) |
-| Порты | TCP-порты для перехвата (через запятую) |
-| Split position | Позиция разреза пакета (`auto` — по SNI/Host) |
-| Fake TTL | TTL для фейковых пакетов (обычно 1) |
-
-#### Стратегии PyDivert
-
-| Стратегия | Как работает |
-|-----------|--------------|
-| `split` | Разрезает TCP-сегмент на 2 части — DPI видит неполный заголовок |
-| `disorder` | То же, но сегменты отправляются в **обратном порядке** |
-| `fake` | Перед настоящим пакетом шлёт «мусорный» с TTL=1 (до сервера не доходит) |
-| `fakedsplit` | Комбо: fake + split для каждого чанка. Максимальный обход |
-
-#### Пресеты
-
-| Пресет | Для чего |
-|--------|----------|
-| YouTube/Discord | Порт 443, стратегия disorder |
-| HTTP Sites | Порт 80, стратегия split |
-| Max Bypass | Порты 80+443, стратегия fakedsplit |
-| Gentle | Порты 80+443, стратегия fake |
+MIT License — используйте свободно, указывайте источник.
 
 ---
 
-## 📋 Лог
-
-- Цветовая подсветка по уровням: INFO / SUCCESS / WARNING / ERROR
-- Выделение TLS и HTTP пакетов отдельными цветами
-- Счётчики пакетов: всего / TLS / HTTP
-- Кнопка **Clear** — очистить лог и счётчики
-- Чекбокс **Auto-scroll** — автопрокрутка к новым записям
-
----
-
-## ❓ Частые проблемы
-
-**`WinDivert error` при старте**
-→ Запустите от имени Администратора.  
-→ Убедитесь, что `pydivert` установлен: `pip install pydivert`.
-
-**`winws.exe не найден`**
-→ Убедитесь, что `bin/winws.exe` существует рядом с `pyzapret.py`.
-
-**Сайты по-прежнему не открываются**
-→ Попробуйте другую стратегию или активируйте больше групп правил.  
-→ Убедитесь, что нужный хост присутствует в `lists/list-general.txt`.  
-→ Для UDP/QUIC используйте движок WinWS — PyDivert работает только с TCP.
-
-**`GameFilter` не загружается**
-→ Введите порты вручную в полях `GameFilter TCP/UDP`.  
-→ Или положите `service.bat` в папку рядом с `pyzapret.py`.
-
----
-
-## 📝 Пользовательские списки
-
-| Файл | Назначение |
-|------|------------|
-| `lists/list-general-user.txt` | Добавить свои домены в общий список |
-| `lists/list-exclude-user.txt` | Исключить домены из обхода |
-| `lists/list-google.txt` | Домены Google (специальная обработка) |
-| `lists/ipset-all.txt` | IP-адреса для обхода |
-| `lists/ipset-exclude.txt` | IP-адреса, исключённые из обхода |
-
-Формат — по одному домену или IP/CIDR на строку.
-
----
-
-## ⚖️ Лицензия и ответственность
-
-Программа предназначена для обхода технических ограничений в личных целях.  
-Используйте в соответствии с законодательством вашей страны.  
-Авторы не несут ответственности за возможные последствия использования.
+<div align="center">
+Основан на проекте <a href="https://github.com/bol-van/zapret">zapret</a> от bol-van
+</div>
