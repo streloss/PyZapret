@@ -179,6 +179,11 @@ MIT License — используйте свободно, указывайте и
 
 ---
 
+## Благодарности
+- Код частично написан с помощью [Claude](https://claude.ai) (Anthropic)
+
+---
+
 <div align="center">
 Основан на проекте <a href="https://github.com/bol-van/zapret">zapret</a> от bol-van
 </div>
